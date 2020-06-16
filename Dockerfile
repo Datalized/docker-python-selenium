@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.7.7-slim-buster
 
 # FROM https://github.com/SeleniumHQ/docker-selenium/blob/master/Base/Dockerfile
 #================================================
