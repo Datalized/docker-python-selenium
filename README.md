@@ -3,6 +3,10 @@
 Docker python base image with selenium chrome and firefox
 
 ```bash
-docker build . -t rarce/docker-python-selenium:20210804
-docker push rarce/docker-python-selenium:20210804
+# build in x86
+docker build . --platform linux/amd64 -t docker-python-selenium:latest
+# tag image
+docker tag docker-python-selenium:latest rarce/docker-python-selenium:20220915
+# push image to docker hub
+docker push rarce/docker-python-selenium:20220915
 ```

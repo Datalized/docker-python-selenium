@@ -171,7 +171,7 @@ RUN  sudo mkdir -p /tmp/.X11-unix && sudo chmod 1777 /tmp/.X11-unix
 #       google-chrome-beta  (pull latest beta)
 #============================================
 # ARG CHROME_VERSION="google-chrome-stable"
-ARG CHROME_VERSION="105.0.5195.129"
+ARG CHROME_VERSION="google-chrome-stable"
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
     && apt-get update -qqy \
@@ -192,7 +192,7 @@ RUN /opt/bin/wrap_chrome_binary
 # can specify versions by CHROME_DRIVER_VERSION
 # Latest released version will be used by default
 #============================================
-ARG CHROME_DRIVER_VERSION="105.0.5195.52"
+# ARG CHROME_DRIVER_VERSION="105.0.5195.52"
 RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
     then CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
     && NO_SUCH_KEY=$(curl -ls https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION} | head -n 1 | grep -oe NoSuchKey) ; \
