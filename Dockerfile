@@ -144,24 +144,22 @@ COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
 RUN /opt/bin/wrap_chrome_binary
 
 #============================================
-# Chrome webdriver
+# Chrome webdriver (new API from chrome-for-testing)
 #============================================
-# can specify versions by CHROME_DRIVER_VERSION
-# Latest released version will be used by default
-#============================================
-ARG CHROME_DRIVER_VERSION
-RUN if [ -z "$CHROME_DRIVER_VERSION" ]; \
-    then CHROME_MAJOR_VERSION=$(google-chrome --version | sed -E "s/.* ([0-9]+)(\.[0-9]+){3}.*/\1/") \
-    && CHROME_DRIVER_VERSION=$(wget --no-verbose -O - "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION}"); \
-    fi \
-    && echo "Using chromedriver version: "$CHROME_DRIVER_VERSION \
-    && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip \
-    && rm -rf /opt/selenium/chromedriver \
-    && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
-    && rm /tmp/chromedriver_linux64.zip \
-    && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-    && chmod 755 /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION \
-    && sudo ln -fs /opt/selenium/chromedriver-$CHROME_DRIVER_VERSION /usr/bin/chromedriver
+RUN set -eux; \
+    # Obtener última versión estable "buena conocida"
+    CHROME_INFO=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json); \
+    VERSION=$(echo "$CHROME_INFO" | jq -r '.channels.Stable.version'); \
+    DRIVER_URL=$(echo "$CHROME_INFO" | jq -r --arg ver "$VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform == "linux64") | .url'); \
+    echo "Using ChromeDriver version: $VERSION"; \
+    # Descargar e instalar chromedriver
+    wget -qO /tmp/chromedriver.zip "$DRIVER_URL"; \
+    unzip /tmp/chromedriver.zip -d /opt/selenium; \
+    chmod 755 /opt/selenium/chromedriver-linux64/chromedriver; \
+    mv /opt/selenium/chromedriver-linux64/chromedriver /opt/selenium/chromedriver-$VERSION; \
+    ln -fs /opt/selenium/chromedriver-$VERSION /usr/bin/chromedriver; \
+    rm -rf /tmp/chromedriver.zip /opt/selenium/chromedriver-linux64
+
 
 # FROM https://github.com/SeleniumHQ/docker-selenium/blob/master/NodeFirefox/Dockerfile
 
