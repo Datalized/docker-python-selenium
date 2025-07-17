@@ -144,15 +144,13 @@ COPY wrap_chrome_binary /opt/bin/wrap_chrome_binary
 RUN /opt/bin/wrap_chrome_binary
 
 #============================================
-# Chrome webdriver (new API from chrome-for-testing)
+# Chrome webdriver (new chrome-for-testing method)
 #============================================
 RUN set -eux; \
-    # Obtener última versión estable "buena conocida"
-    CHROME_INFO=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json); \
-    VERSION=$(echo "$CHROME_INFO" | jq -r '.channels.Stable.version'); \
-    DRIVER_URL=$(echo "$CHROME_INFO" | jq -r --arg ver "$VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform == "linux64") | .url'); \
+    VERSION=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json | jq -r '.channels.Stable.version'); \
+    DRIVER_URL=$(wget -qO- https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json \
+    | jq -r --arg ver "$VERSION" '.versions[] | select(.version == $ver) | .downloads.chromedriver[] | select(.platform == "linux64") | .url'); \
     echo "Using ChromeDriver version: $VERSION"; \
-    # Descargar e instalar chromedriver
     wget -qO /tmp/chromedriver.zip "$DRIVER_URL"; \
     unzip /tmp/chromedriver.zip -d /opt/selenium; \
     chmod 755 /opt/selenium/chromedriver-linux64/chromedriver; \
